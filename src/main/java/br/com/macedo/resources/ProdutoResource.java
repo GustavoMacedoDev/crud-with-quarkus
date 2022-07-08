@@ -40,6 +40,7 @@ public class ProdutoResource {
     @GET
     @Path("/")
     @Operation(summary = "Lista Produtos", description = "ListaProdutos")
+    @APIResponse(responseCode = "200", description = "Lista de todos os produtos")
     public Response listaProdutos() {
         List<ListagemProdutoDto> listagemProdutos = produtoService.listaProdutos();
         

@@ -20,5 +20,4 @@ public class CadastraProdutoDto implements Serializable {
     @Digits(message = "Campo inválido", integer = 12, fraction = 2)
     private BigDecimal preco;
 
-    private StatusEnum statusEnum;
 }

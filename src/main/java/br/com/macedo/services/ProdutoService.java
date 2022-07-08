@@ -5,7 +5,6 @@ import br.com.macedo.entities.dto.CadastraProdutoDto;
 import br.com.macedo.entities.dto.DetalhaProdutoDto;
 import br.com.macedo.entities.dto.ListagemProdutoDto;
 import br.com.macedo.entities.enums.StatusEnum;
-import br.com.macedo.utils.exceptions.NegocioException;
 import br.com.macedo.utils.exceptions.ObjectNotFoundException;
 import br.com.macedo.utils.mensagens.MensagemRetorno;
 import org.jboss.logging.Logger;
@@ -25,7 +24,13 @@ public class ProdutoService {
     public List<ListagemProdutoDto> listaProdutos() {
         List<ListagemProdutoDto> listaProdutosResponse = new ArrayList<>();
 
-        List<ProdutoEntity> listaProdutosEntity = ProdutoEntity.listAll();
+        List<ProdutoEntity> listaProdutosEntity;
+        try {
+            listaProdutosEntity = ProdutoEntity.listAll();
+
+        } catch (PersistenceException e) {
+            throw new ObjectNotFoundException("Erro ao buscar os produtos");
+        }
 
         for (ProdutoEntity produto : listaProdutosEntity) {
             ListagemProdutoDto listagemProdutoDto = new ListagemProdutoDto(produto);
@@ -47,7 +52,7 @@ public class ProdutoService {
             produtoEntity.persist();
         } catch (PersistenceException e) {
             LOGGER.error(e);
-            throw new NegocioException("Erro ao inserir produto");
+            throw new ObjectNotFoundException("Erro ao inserir produto");
         }
 
         return new MensagemRetorno(produtoEntity.getIdProduto(),
