@@ -1,7 +1,6 @@
-package br.com.macedo.entities.dto;
+package br.com.macedo.domain.dto;
 
-import br.com.macedo.entities.ProdutoEntity;
-import br.com.macedo.entities.enums.StatusEnum;
+import br.com.macedo.domain.aggregate.ProdutoEntity;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -11,11 +10,12 @@ import java.math.BigDecimal;
 public class ListagemProdutoDto implements Serializable {
     private final String nomeProduto;
     private final BigDecimal preco;
-    private final StatusEnum statusEnum;
+    private final String status;
 
     public ListagemProdutoDto(ProdutoEntity entity) {
         this.nomeProduto = entity.getNomeProduto();
         this.preco = entity.getPreco();
-        this.statusEnum = entity.getStatusEnum();
+        this.status = entity.getStatusProduto().getNomeStatus();
+
     }
 }

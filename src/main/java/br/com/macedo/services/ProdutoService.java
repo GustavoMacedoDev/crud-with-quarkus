@@ -1,15 +1,16 @@
 package br.com.macedo.services;
 
-import br.com.macedo.entities.ProdutoEntity;
-import br.com.macedo.entities.dto.CadastraProdutoDto;
-import br.com.macedo.entities.dto.DetalhaProdutoDto;
-import br.com.macedo.entities.dto.ListagemProdutoDto;
-import br.com.macedo.entities.enums.StatusEnum;
+import br.com.macedo.domain.aggregate.ProdutoEntity;
+import br.com.macedo.domain.dto.CadastraProdutoDto;
+import br.com.macedo.domain.dto.DetalhaProdutoDto;
+import br.com.macedo.domain.dto.ListagemProdutoDto;
+import br.com.macedo.repository.ProdutoRepository;
 import br.com.macedo.utils.exceptions.ObjectNotFoundException;
 import br.com.macedo.utils.mensagens.MensagemRetorno;
 import org.jboss.logging.Logger;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.inject.Inject;
 import javax.persistence.PersistenceException;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
@@ -18,6 +19,12 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class ProdutoService {
+
+    @Inject
+    StatusService statusService;
+
+    @Inject
+    ProdutoRepository produtoRepository;
 
     private final static Logger LOGGER = Logger.getLogger(ProdutoService.class);
 
@@ -43,10 +50,16 @@ public class ProdutoService {
 
     @Transactional
     public MensagemRetorno cadastrarProduto(CadastraProdutoDto cadastraProdutoDto)  {
+        Optional<ProdutoEntity> produtoEntityResponse = produtoRepository.findByNomeProduto(cadastraProdutoDto.getNomeProduto());
+
+        if(produtoEntityResponse.isPresent()) {
+            throw new ObjectNotFoundException("Produto já cadastrado");
+        }
+
         ProdutoEntity produtoEntity = new ProdutoEntity();
         produtoEntity.setNomeProduto(cadastraProdutoDto.getNomeProduto());
         produtoEntity.setPreco(cadastraProdutoDto.getPreco());
-        produtoEntity.setStatusEnum(StatusEnum.ATIVO);
+        produtoEntity.setStatusProduto(statusService.buscaStatusPorNomeStatus(cadastraProdutoDto.getStatus()));
 
         try {
             produtoEntity.persist();
@@ -73,60 +86,17 @@ public class ProdutoService {
         return produtoEntity.orElseThrow(() -> new ObjectNotFoundException("Produto não encontrado"));
     }
 
-    @Transactional
-    public MensagemRetorno inativaProduto(Long idProduto) {
-        ProdutoEntity produto = pesquisaProduto(idProduto);
 
-        produto.setStatusEnum(StatusEnum.INATIVO);
+    public List<ListagemProdutoDto> listaProdutosPorStatus(String nomeStatus) {
+        List<ProdutoEntity> listaProdutos = produtoRepository.findProdutosByStatus(nomeStatus);
 
-        try {
-            produto.persistAndFlush();
-        } catch (PersistenceException e) {
-            LOGGER.error(e);
+        List<ListagemProdutoDto> listagemProdutoResponse = new ArrayList<>();
+        for(ProdutoEntity produto : listaProdutos) {
+            ListagemProdutoDto listagemProdutoDto = new ListagemProdutoDto(produto);
+            listagemProdutoResponse.add(listagemProdutoDto);
         }
 
-        MensagemRetorno mensagemRetorno = new MensagemRetorno();
-        mensagemRetorno.setCodigo(produto.getIdProduto());
-        mensagemRetorno.setMensagem("Produto Inativado com sucesso");
 
-        return mensagemRetorno;
-    }
-
-    @Transactional
-    public MensagemRetorno bloqueiaProduto(Long idProduto) {
-        ProdutoEntity produto = pesquisaProduto(idProduto);
-
-        produto.setStatusEnum(StatusEnum.BLOQUEADO);
-
-        try {
-            produto.persistAndFlush();
-        } catch (PersistenceException e) {
-            LOGGER.error(e);
-        }
-
-        MensagemRetorno mensagemRetorno = new MensagemRetorno();
-        mensagemRetorno.setCodigo(produto.getIdProduto());
-        mensagemRetorno.setMensagem("Produto Bloqueado com sucesso");
-
-        return mensagemRetorno;
-    }
-
-    @Transactional
-    public MensagemRetorno ativaProduto(Long idProduto) {
-        ProdutoEntity produto = pesquisaProduto(idProduto);
-
-        produto.setStatusEnum(StatusEnum.ATIVO);
-
-        try {
-            produto.persistAndFlush();
-        } catch (PersistenceException e) {
-            LOGGER.error(e);
-        }
-
-        MensagemRetorno mensagemRetorno = new MensagemRetorno();
-        mensagemRetorno.setCodigo(produto.getIdProduto());
-        mensagemRetorno.setMensagem("Produto Ativado com sucesso");
-
-        return mensagemRetorno;
+        return listagemProdutoResponse;
     }
 }

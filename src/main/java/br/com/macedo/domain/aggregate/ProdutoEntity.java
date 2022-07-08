@@ -1,6 +1,5 @@
-package br.com.macedo.entities;
+package br.com.macedo.domain.aggregate;
 
-import br.com.macedo.entities.enums.StatusEnum;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +11,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import java.math.BigDecimal;
 
@@ -28,10 +29,15 @@ public class ProdutoEntity extends PanacheEntityBase {
     @Column(name = "id_produto", nullable = false)
     private Long idProduto;
 
+    @Column(name = "nome_produto")
     private String nomeProduto;
 
+    @Column(name = "preco")
     private BigDecimal preco;
 
-    private StatusEnum statusEnum;
+    @ManyToOne
+    @JoinColumn(name = "status_produto_id")
+    private StatusEntity statusProduto;
+
 
 }

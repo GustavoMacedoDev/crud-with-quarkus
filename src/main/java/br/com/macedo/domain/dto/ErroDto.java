@@ -1,4 +1,4 @@
-package br.com.macedo.entities.dto;
+package br.com.macedo.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

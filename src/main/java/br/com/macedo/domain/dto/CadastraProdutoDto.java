@@ -1,6 +1,6 @@
-package br.com.macedo.entities.dto;
+package br.com.macedo.domain.dto;
 
-import br.com.macedo.entities.enums.StatusEnum;
+import br.com.macedo.domain.aggregate.StatusEntity;
 import lombok.Data;
 
 import javax.validation.constraints.Digits;
@@ -19,5 +19,7 @@ public class CadastraProdutoDto implements Serializable {
     @NotNull(message = "O campo preco não pode ser nulo")
     @Digits(message = "Campo inválido", integer = 12, fraction = 2)
     private BigDecimal preco;
+
+    private String status;
 
 }

@@ -3,11 +3,14 @@ package br.com.macedo.utils.mensagens;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
+import java.io.Serializable;
+
 @Setter
-public class Mensagem {
+@Getter
+public class Mensagem implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String mensagem;
-
 
 }

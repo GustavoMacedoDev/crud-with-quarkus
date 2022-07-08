@@ -1,11 +1,11 @@
 package br.com.macedo.resources;
 
-import br.com.macedo.entities.dto.CadastraProdutoDto;
-import br.com.macedo.entities.dto.DetalhaProdutoDto;
-import br.com.macedo.entities.dto.ErroDto;
-import br.com.macedo.entities.dto.ListagemProdutoDto;
-import br.com.macedo.utils.mensagens.MensagemRetorno;
+import br.com.macedo.domain.dto.CadastraProdutoDto;
+import br.com.macedo.domain.dto.DetalhaProdutoDto;
+import br.com.macedo.domain.dto.ErroDto;
+import br.com.macedo.domain.dto.ListagemProdutoDto;
 import br.com.macedo.services.ProdutoService;
+import br.com.macedo.utils.mensagens.MensagemRetorno;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
@@ -19,7 +19,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -64,8 +63,8 @@ public class ProdutoResource {
     @Operation(summary = "Detalha produto ", description = "Detalha produto")
     @APIResponse(responseCode = "200", content = @Content(mediaType = APPLICATION_JSON,
                     schema = @Schema(implementation = DetalhaProdutoDto.class)))
-    @APIResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(mediaType = APPLICATION_JSON,
-                    schema = @Schema(implementation = ErroDto.class)))
+    @APIResponse(responseCode = "404", description = "Produto não encontrado",
+                    content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = ErroDto.class)))
     public Response buscaProdutoPorId(@Parameter(description = "código do produto", required = true)
                                       @PathParam("idProduto") Long idProduto) {
         DetalhaProdutoDto detalhaProdutoDto = produtoService.detalhaProduto(idProduto);
@@ -74,46 +73,17 @@ public class ProdutoResource {
 
     }
 
-    @PUT
-    @Path("/produto/inativa/{idProduto}")
-    @Operation(summary = "Inativa Produto", description = "Inativa Produto")
+    @GET
+    @Path("/{nomeStatus}")
+    @Operation(summary = "Lista Produtos pelo seu status", description = "Lista Produtos pelo seu status")
     @APIResponse(responseCode = "200", content = @Content(mediaType = APPLICATION_JSON,
-                    schema = @Schema(implementation = DetalhaProdutoDto.class)))
-    public Response inativaProduto(@Parameter(description = "código do produto", required = true)
-                                   @PathParam("idProduto") Long idProduto) {
+                    schema = @Schema(implementation = ListagemProdutoDto.class)))
+    public Response listaProdutosPorStatus(@Parameter(description = "Nome do Status", required = true)
+                                           @PathParam("nomeStatus") String nomeStatus) {
+        List<ListagemProdutoDto> listaProdutos = produtoService.listaProdutosPorStatus(nomeStatus);
 
-        MensagemRetorno mensagem = produtoService.inativaProduto(idProduto);
-
-        return Response.status(Response.Status.OK).entity(mensagem).build();
-
+        return Response.status(Response.Status.OK).entity(listaProdutos).build();
     }
 
-    @PUT
-    @Path("/produto/bloqueia/{idProduto}")
-    @Operation(summary = "Bloqueia Produto", description = "Bloqueia Produto")
-    @APIResponse(responseCode = "200", content = @Content(mediaType = APPLICATION_JSON,
-            schema = @Schema(implementation = DetalhaProdutoDto.class)))
-    public Response bloqueiaProduto(@Parameter(description = "código do produto", required = true)
-                                   @PathParam("idProduto") Long idProduto) {
-
-        MensagemRetorno mensagem = produtoService.bloqueiaProduto(idProduto);
-
-        return Response.status(Response.Status.OK).entity(mensagem).build();
-
-    }
-
-    @PUT
-    @Path("/produto/ativa/{idProduto}")
-    @Operation(summary = "Ativa Produto", description = "Ativa Produto")
-    @APIResponse(responseCode = "200", content = @Content(mediaType = APPLICATION_JSON,
-            schema = @Schema(implementation = DetalhaProdutoDto.class)))
-    public Response ativaProduto(@Parameter(description = "código do produto", required = true)
-                                    @PathParam("idProduto") Long idProduto) {
-
-        MensagemRetorno mensagem = produtoService.ativaProduto(idProduto);
-
-        return Response.status(Response.Status.OK).entity(mensagem).build();
-
-    }
 }
 
